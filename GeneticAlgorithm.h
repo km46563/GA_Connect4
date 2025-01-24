@@ -17,10 +17,13 @@ private:
     float pm = 0.02;
     int tour = 5;
     char computer_marker = 'X';
+    char player_marker = 'O';
+    std::vector<std::vector<int>> board;
 
 public:
-    double heuristic_evaluation(const std::vector<std::vector<int>>& board);
-    bool make_move(std::vector<std::vector<int>>& board, int column);
+    double heuristic_evaluation(const std::vector<std::vector<int>>& board, char player) const;
+    bool make_move(std::vector<std::vector<int>>& board, int column, char player) const;
+    double evaluate_fitness(std::vector<std::vector<int>> board, const std::vector<int>& moves, char player) const;
 };
 
 

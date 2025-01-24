@@ -135,7 +135,7 @@ void Connect4Game::playAgainstComputer(GeneticAlgorithm &ga, char computerMarker
             auto fitnessFunction = [this, computerMarker](int col) {
                 Connect4Game gameCopy = *this;
                 if (gameCopy.makeMove(col)) {
-                    return fitnessEvaluation(gameCopy.board, computerMarker);
+                    //return ga.heuristic_evaluation(gameCopy.board, computerMarker);
                 }
                 return -1e6;
             };
@@ -143,7 +143,7 @@ void Connect4Game::playAgainstComputer(GeneticAlgorithm &ga, char computerMarker
             double bestFitness = -1e6;
 
             for (int col = 0; col < BOARD_COLS; ++ col) {
-                double fitness = ga.calculate_fitness()
+                //double fitness = ga.calculate_fitness()
             }
         }
     }

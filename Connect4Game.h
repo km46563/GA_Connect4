@@ -20,6 +20,9 @@ public:
 
     bool checkWinner(int last_row, int last_col);
     bool isDraw();
+
+    Connect4Game();
+
     void displayBoard();
     bool makeMove(int col);
     void switchPlayer();
