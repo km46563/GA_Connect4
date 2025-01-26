@@ -2,8 +2,12 @@
 // Created by maciej on 09.01.25.
 //
 #include "Connect4Game.h"
-#include "GeneticAlgorithm.cpp"
+#include "GeneticAlgorithm.h"
+#include "GAPopulation.h"
+#include "MoveDiscoverer.h"
 #include <iomanip>
+#include <fstream>
+#include <filesystem>
 
 Connect4Game::Connect4Game() : board(BOARD_ROWS, std::vector<char>(BOARD_COLS, ' ')), currentPlayer('X') {}
 
@@ -21,6 +25,24 @@ void Connect4Game::displayBoard() {
         }
         std::cout << std::endl;
     }
+}
+
+void Connect4Game::board2txt() {
+    std::filesystem::path filepath("../board_debug.txt");
+    std::ofstream file(filepath, std::ios::trunc); // Open in append mode
+    if (!file) {
+        std::cerr << "Error: Unable to open file " << filepath.string() << " for writing.\n";
+        return;
+    }
+
+    for (const auto& row : board) {
+        for (char cell : row) {
+            file << "|" << (cell == ' ' ? '.' : cell); // Use '.' for empty spaces for better visibility
+        }
+        file << "|\n";
+    }
+    file << std::string(BOARD_COLS * 2 + 1, '-') << "\n"; // Divider line
+    file.close();
 }
 
 bool Connect4Game::makeMove(int col) {
@@ -146,5 +168,41 @@ void Connect4Game::playAgainstComputer(GeneticAlgorithm &ga, char computerMarker
                 //double fitness = ga.calculate_fitness()
             }
         }
+    }
+}
+
+void Connect4Game::botVsBot(MoveDiscoverer& md, Individual& bot1, Individual& bot2) {
+    int round = 0;
+    while (true) {
+        Individual& currentBot = (round % 2 == 0) ? bot1 : bot2;
+        char opponentMark = currentPlayer == 'X' ? 'O' : 'X';
+
+        auto moves = md.discoverMoves(board, currentPlayer, opponentMark);
+        int moveCol = md.getBestMove(moves, currentBot.chromosome);
+        makeMove(moveCol);
+
+        board2txt();
+
+        int lastRow = -1;
+        for(int i = BOARD_ROWS - 1; i >= 0; i--) {
+            if (board[i][moveCol] == currentPlayer) {
+                lastRow = i;
+                break;
+            }
+        }
+
+        if (checkWinner(lastRow, moveCol)) {
+            currentBot.winCount++;
+            break;
+        }
+
+        if (isDraw()) {
+            bot1.drawCount++;
+            bot2.drawCount++;
+            break;
+        }
+
+        switchPlayer();
+        ++round;
     }
 }

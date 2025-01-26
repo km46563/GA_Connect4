@@ -8,6 +8,7 @@
 #include<vector>
 #include<iostream>
 #include "GeneticAlgorithm.h"
+#include "GAPopulation.h"
 
 class Connect4Game {
 public:
@@ -24,11 +25,15 @@ public:
     Connect4Game();
 
     void displayBoard();
+    void board2txt();
     bool makeMove(int col);
     void switchPlayer();
     void play();
     void playAgainstComputer(GeneticAlgorithm& ga, char computerMarker);
     char getCurrentPlayer() const;
+
+    void botVsBot(MoveDiscoverer& md, Individual& bot1, Individual& bot2);
+
     const std::vector<std::vector<char>>& getBoard() const;
 };
 
