@@ -144,7 +144,9 @@ void GAPopulation::mutate(Individual &individual, float mutationRate, float muta
 	std::uniform_int_distribution<int> mutationAmount(-mutationPower, mutationPower);
 
 	for (auto &gene : individual.chromosome) {
-		gene += mutationPower(rand_engine);
-		gene = std::clamp(gene, 0.f, 1.f);
+		if (mutationChance(rand_engine) < mutationRate) {
+			gene += mutationPower(rand_engine);
+			gene = std::clamp(gene, 0.f, 1.f);
+		}
 	}
 }
