@@ -42,10 +42,24 @@ void GAPopulation::initialize(int pop_sz, int n_cols, int simGameCount, PopInitT
 // [x] TODO: 1. Simulate one game and save it somewhere
 // [x] TODO: 2. Simulate whole population
 // [x] TODO: 3. Calculate fitness from simulation stats
-// TODO: 4. Implement selection mechanism
-// TODO: 5. Implement crossover and mutation operators
-// TODO: 6. Implement advancement of the population
+// [x] TODO: 4. Implement selection mechanism
+// [x] TODO: 5. Implement crossover and mutation operators
+// [x] TODO: 6. Implement advancement of the population
 void GAPopulation::advancePopulation() {
+	std::vector<Individual> newPopulation;
+	tournamentSelection(5);
+	while (newPopulation.size() < population.size()) {
+		Individual parent1 = population[rand() % population.size()];
+		Individual parent2 = population[rand() % population.size()];
+		crossover(parent1, parent2);
+
+		mutate(parent1, 0.05f, 0.1f);
+		mutate(parent2, 0.05f, 0.1f);
+
+		newPopulation.push_back(parent1);
+		newPopulation.push_back(parent2);
+	}
+	population = newPopulation;
 }
 
 void GAPopulation::simulateGames() {
@@ -112,7 +126,7 @@ void GAPopulation::tournamentSelection(int tournamentSize) {
 	population = std::move(newPopulation);
 }
 
-void GAPopulation::crossoverPMX(Individual &parent1, Individual &parent2) {
+void GAPopulation::crossover(Individual &parent1, Individual &parent2) {
 	std::random_device rd;
 	std::mt19937 rand_engine(rd());
 
