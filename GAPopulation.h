@@ -29,13 +29,13 @@ private:
 	void resetPopStats(bool gameStats = true, bool fitness = true);
 	void calculatePopFitness();
 	void tournamentSelection(int tournamentSize);
-	void crossover(Individual &parent1, Individual &parent2);
+	std::pair<Individual, Individual> crossover(Individual &parent1, Individual &parent2);
 	void mutate(Individual &individual, float mutationRate, float mutationPower);
 	int getBestMove(const std::vector<Move>& moves);
 
 public:
 	void initialize(int pop_sz, int n_cols, int simGameCount, PopInitType init_type);
-	void advancePopulation();
+	void advancePopulation(double timeLimit);
 	void simulateGames();
 	std::vector<Individual> getBest(int count) const;
 

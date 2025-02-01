@@ -45,21 +45,37 @@ void GAPopulation::initialize(int pop_sz, int n_cols, int simGameCount, PopInitT
 // [x] TODO: 4. Implement selection mechanism
 // [x] TODO: 5. Implement crossover and mutation operators
 // [x] TODO: 6. Implement advancement of the population
-void GAPopulation::advancePopulation() {
-	std::vector<Individual> newPopulation;
-	tournamentSelection(5);
-	while (newPopulation.size() < population.size()) {
-		Individual parent1 = population[rand() % population.size()];
-		Individual parent2 = population[rand() % population.size()];
-		crossover(parent1, parent2);
+void GAPopulation::advancePopulation(double timeLimit) {
+	auto startTime = std::chrono::high_resolution_clock::now();
 
-		mutate(parent1, 0.05f, 0.1f);
-		mutate(parent2, 0.05f, 0.1f);
+	while (true) {
+		std::vector<Individual> newPopulation;
+		simulateGames();
+		calculatePopFitness();
+		tournamentSelection(2);
+		while (newPopulation.size() < population.size()) {
+			Individual parent1 = population[rand() % population.size()];
+			Individual parent2 = population[rand() % population.size()];
 
-		newPopulation.push_back(parent1);
-		newPopulation.push_back(parent2);
+			auto [child1, child2] = crossover(parent1, parent2);
+
+			mutate(child1, 0.05f, 0.1f);
+			mutate(child2, 0.05f, 0.1f);
+
+			newPopulation.push_back(child1);
+			if (newPopulation.size() < population.size()) {
+				newPopulation.push_back(child2);
+			}
+		}
+		population = std::move(newPopulation);
+
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> diff = currentTime - startTime;
+
+		if (diff.count() > timeLimit) {
+			break;
+		}
 	}
-	population = newPopulation;
 }
 
 void GAPopulation::simulateGames() {
@@ -126,7 +142,7 @@ void GAPopulation::tournamentSelection(int tournamentSize) {
 	population = std::move(newPopulation);
 }
 
-void GAPopulation::crossover(Individual &parent1, Individual &parent2) {
+std::pair<Individual, Individual> GAPopulation::crossover(Individual &parent1, Individual &parent2) {
 	std::random_device rd;
 	std::mt19937 rand_engine(rd());
 
@@ -147,8 +163,7 @@ void GAPopulation::crossover(Individual &parent1, Individual &parent2) {
 		std::swap(child1.chromosome[i], child2.chromosome[i]);
 	}
 
-	population.push_back(child1);
-	population.push_back(child2);
+	return {child1, child2};
 }
 
 void GAPopulation::mutate(Individual &individual, float mutationRate, float mutationPower) {
@@ -159,7 +174,7 @@ void GAPopulation::mutate(Individual &individual, float mutationRate, float muta
 
 	for (auto &gene : individual.chromosome) {
 		if (mutationChance(rand_engine) < mutationRate) {
-			gene += mutationPower(rand_engine);
+			gene += mutationAmount(rand_engine);
 			gene = std::clamp(gene, 0.f, 1.f);
 		}
 	}

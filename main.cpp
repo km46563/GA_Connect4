@@ -1,6 +1,6 @@
-#include "Connect4Game.h"
-#include "GAPopulation.h"
-#include "MoveDiscoverer.h"
+#include "Connect4Game.cpp"
+#include "GAPopulation.cpp"
+#include "MoveDiscoverer.cpp"
 
 
 int main() {
@@ -20,7 +20,8 @@ int main() {
 
 	// MoveDiscoverer md;
 	GAPopulation gap;
-	gap.initialize(10, 20, Connect4Game::BOARD_COLS, PopInitType::RANDOM);
+	gap.initialize(50, Connect4Game::BOARD_COLS, 10, PopInitType::RANDOM);
+	gap.advancePopulation(60);
 	gap.simulateGames();
 
 	std::cout << "end of sim\n";
