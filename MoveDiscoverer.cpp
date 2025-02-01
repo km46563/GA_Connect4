@@ -1,6 +1,6 @@
 #include "MoveDiscoverer.h"
-
 #include "Connect4Game.h"
+#include <algorithm>
 
 int MoveDiscoverer::placeMark(std::vector<std::vector<char> > &board, int col, char mark) {
 	for ( int row = board.size() - 1; row >= 0; --row ) {

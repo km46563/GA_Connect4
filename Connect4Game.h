@@ -7,7 +7,6 @@
 
 #include<vector>
 #include<iostream>
-#include "GeneticAlgorithm.h"
 #include "GAPopulation.h"
 
 class Connect4Game {
@@ -29,7 +28,7 @@ public:
     bool makeMove(int col);
     void switchPlayer();
     void play();
-    void playAgainstComputer(GeneticAlgorithm& ga, char computerMarker);
+    void playAgainstComputer(int pop_sz, int n_cols, int simGameCount, PopInitType init_type);
     char getCurrentPlayer() const;
 
     void botVsBot(MoveDiscoverer& md, Individual& bot1, Individual& bot2);

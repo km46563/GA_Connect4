@@ -2,7 +2,6 @@
 // Created by maciej on 09.01.25.
 //
 #include "Connect4Game.h"
-#include "GeneticAlgorithm.h"
 #include "GAPopulation.h"
 #include "MoveDiscoverer.h"
 #include <iomanip>
@@ -136,7 +135,7 @@ void Connect4Game::play() {
     }
 }
 
-void Connect4Game::playAgainstComputer(GeneticAlgorithm &ga, char computerMarker) {
+void Connect4Game::playAgainstComputer(int pop_sz, int n_cols, int simGameCount, PopInitType init_type) {
     bool game_over = false;
     while(!game_over) {
         displayBoard();
@@ -153,20 +152,7 @@ void Connect4Game::playAgainstComputer(GeneticAlgorithm &ga, char computerMarker
             }
         } else {
             // Tura komputera
-            std::cout<<"Następuje myślenie komputera\n"<<std::endl;
-            auto fitnessFunction = [this, computerMarker](int col) {
-                Connect4Game gameCopy = *this;
-                if (gameCopy.makeMove(col)) {
-                    //return ga.heuristic_evaluation(gameCopy.board, computerMarker);
-                }
-                return -1e6;
-            };
-            int bestCol = 0;
-            double bestFitness = -1e6;
-
-            for (int col = 0; col < BOARD_COLS; ++ col) {
-                //double fitness = ga.calculate_fitness()
-            }
+            continue;
         }
     }
 }

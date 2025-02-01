@@ -2,9 +2,14 @@
 
 #include<algorithm>
 #include<random>
+#include <chrono>
 
+#include "GAOperators.h"
 #include "MoveDiscoverer.h"
 #include "Connect4Game.h"
+
+GAPopulation::GAPopulation(GAConfig &config) : config(config) {}
+
 
 void GAPopulation::initialize(int pop_sz, int n_cols, int simGameCount, PopInitType init_type) {
 	this->simGameCount = simGameCount;
@@ -45,22 +50,22 @@ void GAPopulation::initialize(int pop_sz, int n_cols, int simGameCount, PopInitT
 // [x] TODO: 4. Implement selection mechanism
 // [x] TODO: 5. Implement crossover and mutation operators
 // [x] TODO: 6. Implement advancement of the population
-void GAPopulation::advancePopulation(double timeLimit) {
+void GAPopulation::advancePopulation() {
 	auto startTime = std::chrono::high_resolution_clock::now();
 
 	while (true) {
 		std::vector<Individual> newPopulation;
 		simulateGames();
 		calculatePopFitness();
-		tournamentSelection(2);
+		GAOperators::tournamentSelection(population, config.tournamentSize);
 		while (newPopulation.size() < population.size()) {
 			Individual parent1 = population[rand() % population.size()];
 			Individual parent2 = population[rand() % population.size()];
 
-			auto [child1, child2] = crossover(parent1, parent2);
+			auto [child1, child2] = GAOperators::crossover(parent1, parent2);
 
-			mutate(child1, 0.05f, 0.1f);
-			mutate(child2, 0.05f, 0.1f);
+			GAOperators::mutate(child1, config.mutationRate, config.mutationPower);
+			GAOperators::mutate(child2, config.mutationRate, config.mutationPower);
 
 			newPopulation.push_back(child1);
 			if (newPopulation.size() < population.size()) {
@@ -72,7 +77,7 @@ void GAPopulation::advancePopulation(double timeLimit) {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> diff = currentTime - startTime;
 
-		if (diff.count() > timeLimit) {
+		if (diff.count() > config.timeLimit) {
 			break;
 		}
 	}
@@ -123,59 +128,3 @@ std::vector<Individual> GAPopulation::getBest(int count) const {
 	return bestIndividuals;
 }
 
-void GAPopulation::tournamentSelection(int tournamentSize) {
-	std::vector<Individual> newPopulation;
-	std::random_device rd;
-	std::mt19937 rand_engine(rd());
-
-	while (newPopulation.size() < population.size()) {
-		std::vector<Individual> tournament;
-		std::sample(population.begin(), population.end(), std::back_inserter(tournament),tournamentSize, rand_engine);
-
-		auto best = std::max_element(tournament.begin(), tournament.end(),
-									[](const Individual &a, const Individual &b) {
-										return a.fitness < b.fitness;
-									});
-
-		newPopulation.push_back(*best);
-	}
-	population = std::move(newPopulation);
-}
-
-std::pair<Individual, Individual> GAPopulation::crossover(Individual &parent1, Individual &parent2) {
-	std::random_device rd;
-	std::mt19937 rand_engine(rd());
-
-	int size = parent1.chromosome.size();
-	std::uniform_int_distribution<int> distribution(0, size - 1);
-
-	int start = distribution(rand_engine);
-	int end = distribution(rand_engine);
-
-	if (start > end) {
-		std::swap(start, end);
-	}
-
-	Individual child1 = parent1;
-	Individual child2 = parent2;
-
-	for (int i = start; i < end; ++i) {
-		std::swap(child1.chromosome[i], child2.chromosome[i]);
-	}
-
-	return {child1, child2};
-}
-
-void GAPopulation::mutate(Individual &individual, float mutationRate, float mutationPower) {
-	std::random_device rd;
-	std::mt19937 rand_engine(rd());
-	std::uniform_int_distribution<int> mutationChance(0.f, 1.f);
-	std::uniform_int_distribution<int> mutationAmount(-mutationPower, mutationPower);
-
-	for (auto &gene : individual.chromosome) {
-		if (mutationChance(rand_engine) < mutationRate) {
-			gene += mutationAmount(rand_engine);
-			gene = std::clamp(gene, 0.f, 1.f);
-		}
-	}
-}

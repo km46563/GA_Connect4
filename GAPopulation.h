@@ -3,17 +3,13 @@
 
 
 #include<vector>
-
+#include "GAConfig.h"
 #include "MoveDiscoverer.h"
+#include "Individual.h"
+#include "GAOperators.h"
 
 // [random_move, make_row_2, make_row_3, make_row_4, disrupt_2, disrupt_3, disrupt_4]
 // [0.0, 1.0]
-struct Individual {
-	std::vector<float> chromosome;
-	int winCount;
-	int drawCount;
-	float fitness;
-};
 
 enum class PopInitType {
 	RANDOM,
@@ -24,18 +20,17 @@ class GAPopulation {
 private:
 	MoveDiscoverer moveDiscoverer;
 	std::vector<Individual> population;
+	GAConfig config;
 	int simGameCount;
 
 	void resetPopStats(bool gameStats = true, bool fitness = true);
 	void calculatePopFitness();
-	void tournamentSelection(int tournamentSize);
-	std::pair<Individual, Individual> crossover(Individual &parent1, Individual &parent2);
-	void mutate(Individual &individual, float mutationRate, float mutationPower);
 	int getBestMove(const std::vector<Move>& moves);
 
 public:
+	GAPopulation(GAConfig& config);
 	void initialize(int pop_sz, int n_cols, int simGameCount, PopInitType init_type);
-	void advancePopulation(double timeLimit);
+	void advancePopulation();
 	void simulateGames();
 	std::vector<Individual> getBest(int count) const;
 
