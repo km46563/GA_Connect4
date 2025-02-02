@@ -73,7 +73,7 @@ bool Connect4Game::isDraw() {
 bool Connect4Game::checkWinner(int lastRow, int lastCol) {
     const std::vector<std::pair<int, int>> directions = {
         {1, 0}, {0, 1}, {1, 1}, {1, -1}
-//     pionowo, poziomo,   przekątne
+//     pionowo,         poziomo,        przekątne
     };
 
     for (auto [dr, dc] : directions) {
@@ -112,7 +112,7 @@ void Connect4Game::play() {
         if (!makeMove(col)) continue;
 
         int lastRow = -1;
-        for(int i = BOARD_ROWS - 1; i >= 0; i--) {
+        for(int i = 0; i <= BOARD_ROWS - 1; i++) {
             if (board[i][col] == currentPlayer) {
                 lastRow = i;
                 break;
@@ -170,7 +170,7 @@ void Connect4Game::botVsBot(MoveDiscoverer& md, Individual& bot1, Individual& bo
         board2txt();
 
         int lastRow = -1;
-        for(int i = BOARD_ROWS - 1; i >= 0; i--) {
+        for(int i = 0; i <= BOARD_ROWS - 1; i++) {
             if (board[i][moveCol] == currentPlayer) {
                 lastRow = i;
                 break;
