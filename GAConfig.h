@@ -8,15 +8,13 @@
 
 
 struct GAConfig {
-    int populationSize;
     int tournamentSize;
     float mutationRate;
     float mutationPower;
     double timeLimit;
 
-    GAConfig(int popSize, int tourSize, float mutRate, float mutPower, double time)
-    : populationSize(popSize), tournamentSize(tourSize),
-    mutationRate(mutRate), mutationPower(mutPower), timeLimit(time) {}
+    GAConfig(int tourSize, float mutRate, float mutPower, double time)
+    : tournamentSize(tourSize), mutationRate(mutRate), mutationPower(mutPower), timeLimit(time) {}
 };
 
 

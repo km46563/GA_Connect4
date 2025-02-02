@@ -165,12 +165,17 @@ void Connect4Game::botVsBot(MoveDiscoverer& md, Individual& bot1, Individual& bo
 
         auto moves = md.discoverMoves(board, currentPlayer, opponentMark);
         int moveCol = md.getBestMove(moves, currentBot.chromosome);
+
+        while (board[0][moveCol] != ' ') {
+            moveCol = rand() % Connect4Game::BOARD_COLS;
+        }
+
         makeMove(moveCol);
 
         board2txt();
 
         int lastRow = -1;
-        for(int i = 0; i <= BOARD_ROWS - 1; i++) {
+        for(int i = 0; i < BOARD_ROWS; i++) {
             if (board[i][moveCol] == currentPlayer) {
                 lastRow = i;
                 break;
