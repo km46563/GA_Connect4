@@ -2,3 +2,4 @@
 cmake-build-*
 board_debug.txt
 CMakeLists.txt
+matplotlib-cpp/

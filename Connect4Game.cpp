@@ -11,7 +11,10 @@
 Connect4Game::Connect4Game() : board(BOARD_ROWS, std::vector<char>(BOARD_COLS, ' ')), currentPlayer('X') {}
 
 void Connect4Game::displayBoard() {
+    #ifndef _WIN32
     system("clear");
+    #endif
+
     std::cout<<"   ";
     for (int i = 0; i < BOARD_COLS; i++) {
         std::cout << std::setw(3) << i << " ";
@@ -55,6 +58,7 @@ bool Connect4Game::makeMove(int col) {
             return true;
         }
     }
+    displayBoard();
     std::cout<<"Niepoprawny ruch, kolumna jest pełna!"<<std::endl;
     return false;
 }
@@ -160,12 +164,11 @@ void Connect4Game::playAgainstComputer(int pop_sz, int n_cols, int simGameCount,
 void Connect4Game::botVsBot(MoveDiscoverer& md, Individual& bot1, Individual& bot2) {
     int round = 0;
     while (true) {
-        Individual& currentBot = (round % 2 == 0) ? bot1 : bot2;
+        Individual* currentBot = (round % 2 == 0) ? &bot1 : &bot2;
         char opponentMark = currentPlayer == 'X' ? 'O' : 'X';
 
         auto moves = md.discoverMoves(board, currentPlayer, opponentMark);
-        int moveCol = md.getBestMove(moves, currentBot.chromosome);
-        makeMove(moveCol);
+        int moveCol = md.getBestMove(moves, currentBot->chromosome);
 
         board2txt();
 
@@ -178,7 +181,7 @@ void Connect4Game::botVsBot(MoveDiscoverer& md, Individual& bot1, Individual& bo
         }
 
         if (checkWinner(lastRow, moveCol)) {
-            currentBot.winCount++;
+            currentBot->winCount++;
             break;
         }
 
