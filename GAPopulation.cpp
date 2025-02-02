@@ -3,10 +3,12 @@
 #include<algorithm>
 #include<random>
 #include <chrono>
+#include<numeric>
 
 #include "GAOperators.h"
 #include "MoveDiscoverer.h"
 #include "Connect4Game.h"
+#include "matplotlib-cpp/matplotlibcpp.h"
 
 GAPopulation::GAPopulation(GAConfig &config) : config(config) {}
 
@@ -74,6 +76,25 @@ void GAPopulation::advancePopulation() {
 		}
 		population = std::move(newPopulation);
 
+		double bestFitness = (*std::max_element(population.begin(), population.end(),
+														[](const Individual &a, const Individual &b) {
+															return a.fitness < b.fitness;
+														})).fitness;
+
+		double worstFitness = (*std::min_element(population.begin(), population.end(),
+												 [](const Individual &a, const Individual &b) {
+													 return a.fitness < b.fitness;
+												 })).fitness;
+
+		double avgFitness = std::accumulate(population.begin(), population.end(), 0.0,
+											[](double sum, const Individual &ind) {
+												return sum + ind.fitness;
+											}) / population.size();
+
+		bestFitnesses.push_back(bestFitness);
+		avgFitnesses.push_back(avgFitness);
+		worstFitnesses.push_back(worstFitness);
+
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> diff = currentTime - startTime;
 
@@ -128,3 +149,39 @@ std::vector<Individual> GAPopulation::getBest(int count) const {
 	return bestIndividuals;
 }
 
+void GAPopulation::plotDrawer() const {
+	std::cout<<"Wyniki fitness dla ostatniej generacji: \n";
+
+	double bestFitness = (*std::max_element(population.begin(), population.end(),
+		[](const Individual &a, const Individual &b) {
+			return a.fitness < b.fitness;
+		})).fitness;
+	double avgFitness = std::accumulate(population.begin(), population.end(), 0.0,
+		[](double sum, const Individual &individual) {
+			return sum + individual.fitness;
+		}) / population.size();
+	double worstFitness = (*std::min_element(population.begin(), population.end(),
+		[](const Individual &a, const Individual &b) {
+			return a.fitness < b.fitness;
+		})).fitness;
+	double variance = std::accumulate(population.begin(), population.end(), 0.0,
+									  [avgFitness](double sum, const Individual &individual) {
+										  return sum + std::pow(individual.fitness - avgFitness, 2);
+									  }) / population.size();
+	double stdDev = std::sqrt(variance);
+
+	std::cout<<"Best fitness: "<<bestFitness<<"\n";
+	std::cout<<"Average fitness: "<<avgFitness<<"\n";
+	std::cout<<"Worst fitness: "<<worstFitness<<"\n";
+	std::cout<<"Standard deviation: "<<stdDev<<"\n";
+
+	matplotlibcpp::figure();
+	matplotlibcpp::plot(bestFitnesses, {{"label", "Best"}});
+	matplotlibcpp::plot(avgFitnesses, {{"label", "Average"}});
+	matplotlibcpp::plot(worstFitnesses, {{"label", "Worst"}});
+	matplotlibcpp::xlabel("Generation");
+	matplotlibcpp::ylabel("Fitness");
+	matplotlibcpp::title("Zmiana fitness w generacjach");
+	matplotlibcpp::legend();
+	matplotlibcpp::show();
+}

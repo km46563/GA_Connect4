@@ -3,6 +3,7 @@
 
 
 #include<vector>
+#include<iostream>
 #include "GAConfig.h"
 #include "MoveDiscoverer.h"
 #include "Individual.h"
@@ -23,6 +24,10 @@ private:
 	GAConfig config;
 	int simGameCount;
 
+	std::vector<double> bestFitnesses;
+	std::vector<double> avgFitnesses;
+	std::vector<double> worstFitnesses;
+
 	void resetPopStats(bool gameStats = true, bool fitness = true);
 	void calculatePopFitness();
 	int getBestMove(const std::vector<Move>& moves);
@@ -33,6 +38,8 @@ public:
 	void advancePopulation();
 	void simulateGames();
 	std::vector<Individual> getBest(int count) const;
+
+	void plotDrawer() const;
 
 	static constexpr int WIN_SCORE = 100;
 	static constexpr int DRAW_SCORE = 20;

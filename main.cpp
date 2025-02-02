@@ -19,10 +19,11 @@ int main() {
 	// };
 
 	// MoveDiscoverer md;
-	GAConfig config(100, 4, 0.05, 0.5, 60);
+	GAConfig config(5, 4, 0.05, 0.5, 60*5);
 	GAPopulation gap(config);
-	gap.initialize(50, Connect4Game::BOARD_COLS, 10, PopInitType::RANDOM);
+	gap.initialize(5, Connect4Game::BOARD_COLS, 10, PopInitType::RANDOM);
 	gap.advancePopulation();
+	gap.plotDrawer();
 	gap.simulateGames();
 
 	std::cout << "end of sim\n";
