@@ -43,7 +43,9 @@ std::vector<Move> MoveDiscoverer::discoverMoves(std::vector<std::vector<char> > 
 
 	for ( int col = 0; col < cols; ++col ) {
 		std::vector<MoveType> colMoves;
-		if ( board[0][col] != emptyField ) continue;
+		if ( board[0][col] != emptyField ) {
+			continue;
+		}
 
 		for ( int dRow = -1; dRow <= 1; ++dRow ) {
 			for ( int dCol = -1; dCol <= 1; ++dCol ) {
