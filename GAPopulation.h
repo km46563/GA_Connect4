@@ -6,6 +6,7 @@
 #include<iostream>
 #include <random>
 
+#include "CSVLogger.h"
 #include "GAConfig.h"
 #include "MoveDiscoverer.h"
 #include "Individual.h"
@@ -26,6 +27,10 @@ private:
 	std::vector<Individual> testBots;
 	GAConfig config;
 
+	CSVLogger weightLogger;
+	int logFileCols;
+	bool logging;
+
 	std::vector<double> bestFitnesses;
 	std::vector<double> avgFitnesses;
 	std::vector<double> worstFitnesses;
@@ -43,6 +48,7 @@ public:
 	std::vector<Individual> getBest(int count) const;
 
 	void plotDrawer() const;
+	void toggleCSVLogging(std::string filename = std::string());
 
 	static std::vector<float> initChromosome(int size, ChromosomeInitType init_type);
 

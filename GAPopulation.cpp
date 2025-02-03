@@ -10,7 +10,35 @@
 #include "Connect4Game.h"
 #include "matplotlib-cpp/matplotlibcpp.h"
 
-GAPopulation::GAPopulation(GAConfig &config) : config(config) {}
+GAPopulation::GAPopulation(GAConfig &config) : config(config), logging(false), logFileCols(9) {}
+
+void GAPopulation::toggleCSVLogging(const std::string filename) {
+	if ( filename.empty() ) {
+		std::wcerr << "Pusta nazwa pliku. Zapisywanie wag do pliku pozostaje wyłączone\n";
+		return;
+	}
+
+	if ( ! logging ) {
+		logging = true;
+
+		weightLogger.set_output_file(filename);
+		weightLogger.set_col_number(logFileCols);
+		weightLogger.add(0, "generation");
+		weightLogger.add(1, "fitness");
+		weightLogger.add(2, "w1");
+		weightLogger.add(3, "w2");
+		weightLogger.add(4, "w3");
+		weightLogger.add(5, "w4");
+		weightLogger.add(6, "w5");
+		weightLogger.add(7, "w6");
+		weightLogger.add(8, "w7");
+
+		weightLogger.commit_row();
+	}
+	else {
+		logging = false;
+	}
+}
 
 void GAPopulation::initialize(int n_cols, ChromosomeInitType pop_init_t, ChromosomeInitType test_bots_init_t) {
 	population = genIndividuals(config.populationSize, n_cols, pop_init_t);
@@ -53,7 +81,7 @@ std::vector<Individual> GAPopulation::genIndividuals(int count, int n_cols, Chro
 void GAPopulation::advancePopulation() {
 	auto startTime = std::chrono::high_resolution_clock::now();
 
-	int generation = 0;
+	int generation = 1;
 	while (true) {
 		std::vector<Individual> newPopulation;
 		simulateGames();
@@ -97,13 +125,23 @@ void GAPopulation::advancePopulation() {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> diff = currentTime - startTime;
 
+		if ( logging ) {
+			for ( const auto& individual : population ) {
+				weightLogger.add(0, generation);
+				weightLogger.add(1, individual.fitness);
+				for ( int i = 2; i < logFileCols; ++i ) {
+					weightLogger.add(i, individual.chromosome.at(i - 2));
+				}
+				weightLogger.commit_row();
+			}
+		}
+
 		if (diff.count() > config.timeLimit) {
 			break;
 		}
 
-		if (++generation > 20) {
-			std::wcout << "STOP\n";
-		}
+		resetPopStats();
+		++generation;
 	}
 }
 
@@ -205,5 +243,6 @@ void GAPopulation::plotDrawer() const {
 	matplotlibcpp::ylabel("Fitness");
 	matplotlibcpp::title("Zmiana fitness w generacjach");
 	matplotlibcpp::legend();
+	matplotlibcpp::grid(true);
 	matplotlibcpp::show();
 }
