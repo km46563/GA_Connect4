@@ -12,9 +12,9 @@
 
 GAPopulation::GAPopulation(GAConfig &config) : config(config) {}
 
-void GAPopulation::initialize(int pop_sz, int n_cols, ChromosomeInitType pop_init_t, ChromosomeInitType test_bots_init_t) {
-	population = genIndividuals(pop_sz, n_cols, pop_init_t);
-	testBots = genIndividuals(pop_sz, n_cols, test_bots_init_t);
+void GAPopulation::initialize(int n_cols, ChromosomeInitType pop_init_t, ChromosomeInitType test_bots_init_t) {
+	population = genIndividuals(config.populationSize, n_cols, pop_init_t);
+	testBots = genIndividuals(config.populationSize, n_cols, test_bots_init_t);
 }
 
 std::vector<Individual> GAPopulation::genIndividuals(int count, int n_cols, ChromosomeInitType init_type) {

@@ -37,7 +37,7 @@ private:
 
 public:
 	GAPopulation(GAConfig& config);
-	void initialize(int pop_sz, int n_cols, ChromosomeInitType init_type, ChromosomeInitType test_bots_init_t);
+	void initialize(int n_cols, ChromosomeInitType init_type, ChromosomeInitType test_bots_init_t);
 	void advancePopulation();
 	void simulateGames();
 	std::vector<Individual> getBest(int count) const;
