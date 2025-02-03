@@ -12,49 +12,48 @@
 
 GAPopulation::GAPopulation(GAConfig &config) : config(config) {}
 
+void GAPopulation::initialize(int pop_sz, int n_cols, ChromosomeInitType pop_init_t, ChromosomeInitType test_bots_init_t) {
+	population = genIndividuals(pop_sz, n_cols, pop_init_t);
+	testBots = genIndividuals(pop_sz, n_cols, test_bots_init_t);
+}
 
-void GAPopulation::initialize(int pop_sz, int n_cols, int simGameCount, PopInitType init_type) {
-	this->simGameCount = simGameCount;
+std::vector<Individual> GAPopulation::genIndividuals(int count, int n_cols, ChromosomeInitType init_type) {
 	std::random_device r;
 	std::mt19937 rand_engine(r());
 	std::uniform_real_distribution<float> dist(0.f, 1.f);
 
-	population.clear();
-	population.resize(pop_sz);
+	std::vector<Individual> individuals(count);
 
 	switch ( init_type ) {
-		case PopInitType::RANDOM:
-			for ( auto &[chromosome, wc, dc, fitness] : population ) {
+		case ChromosomeInitType::RANDOM:
+			for ( auto &[chromosome, wc, dc, fitness] : individuals ) {
 				fitness = 0.f;
 				chromosome.resize(MoveDiscoverer::MOVE_TYPE_COUNT);
 				for ( auto &gene : chromosome ) {
 					gene = dist(rand_engine);
 				}
 			}
-			break;
+		break;
 
-		case PopInitType::FLAT:
+		case ChromosomeInitType::FLAT:
 			const float weight = 1.f / (float) n_cols;
-			for ( auto &[chromosome, wc, dc, fitness] : population ) {
-				fitness = 0.f;
-				chromosome.resize(MoveDiscoverer::MOVE_TYPE_COUNT);
-				for ( auto &gene : chromosome ) {
-					gene = weight;
-				}
+		for ( auto &[chromosome, wc, dc, fitness] : individuals ) {
+			fitness = 0.f;
+			chromosome.resize(MoveDiscoverer::MOVE_TYPE_COUNT);
+			for ( int i = 0; i < MoveDiscoverer::MOVE_TYPE_COUNT; ++i ) {
+				chromosome.at(i) = weight;
 			}
-			break;
+		}
+		break;
 	}
+
+	return individuals;
 }
 
-// [x] TODO: 1. Simulate one game and save it somewhere
-// [x] TODO: 2. Simulate whole population
-// [x] TODO: 3. Calculate fitness from simulation stats
-// [x] TODO: 4. Implement selection mechanism
-// [x] TODO: 5. Implement crossover and mutation operators
-// [x] TODO: 6. Implement advancement of the population
 void GAPopulation::advancePopulation() {
 	auto startTime = std::chrono::high_resolution_clock::now();
 
+	int generation = 0;
 	while (true) {
 		std::vector<Individual> newPopulation;
 		simulateGames();
@@ -101,21 +100,44 @@ void GAPopulation::advancePopulation() {
 		if (diff.count() > config.timeLimit) {
 			break;
 		}
+
+		if (++generation > 20) {
+			std::wcout << "STOP\n";
+		}
 	}
 }
 
 void GAPopulation::simulateGames() {
-	for ( int i = 0; i < population.size(); ++i ) {
-		for ( int j = i + 1; j < population.size(); ++j ) {
-			for ( int gameN = 0; gameN < simGameCount; ++gameN ) {
-				Connect4Game game;
-				if ( gameN % 2 ) {
-					game.botVsBot(moveDiscoverer, population.at(i), population.at(j));
-				} else {
-					game.botVsBot(moveDiscoverer, population.at(j), population.at(i));
+	switch ( config.fcType ) {
+		case FitnessCalcType::VS_TEST_BOTS:
+			for ( int i = 0; i < population.size(); ++i ) {
+				for ( int j = i + 1; j < testBots.size(); ++j ) {
+					for ( int gameN = 0; gameN < config.battleRepeatN; ++gameN ) {
+						Connect4Game game;
+						if ( gameN % 2 ) {
+							game.botVsBot(moveDiscoverer, population.at(i), testBots.at(j));
+						} else {
+							game.botVsBot(moveDiscoverer, testBots.at(j), population.at(i));
+						}
+					}
 				}
 			}
-		}
+			break;
+
+		case FitnessCalcType::VS_POPULATION: default:
+			for ( int i = 0; i < population.size(); ++i ) {
+				for ( int j = i + 1; j < population.size(); ++j ) {
+					for ( int gameN = 0; gameN < config.battleRepeatN; ++gameN ) {
+						Connect4Game game;
+						if ( gameN % 2 ) {
+							game.botVsBot(moveDiscoverer, population.at(i), population.at(j));
+						} else {
+							game.botVsBot(moveDiscoverer, population.at(j), population.at(i));
+						}
+					}
+				}
+			}
+			break;
 	}
 }
 

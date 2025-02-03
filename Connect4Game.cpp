@@ -59,7 +59,7 @@ bool Connect4Game::makeMove(int col) {
         }
     }
     displayBoard();
-    std::cout<<"Niepoprawny ruch, kolumna jest pełna!"<<std::endl;
+    std::wcout<<"Niepoprawny ruch, kolumna jest pełna!"<<std::endl;
     return false;
 }
 
@@ -139,7 +139,7 @@ void Connect4Game::play() {
     }
 }
 
-void Connect4Game::playAgainstComputer(int pop_sz, int n_cols, int simGameCount, PopInitType init_type) {
+void Connect4Game::playAgainstComputer(int pop_sz, int n_cols, int simGameCount, ChromosomeInitType init_type) {
     bool game_over = false;
     while(!game_over) {
         displayBoard();
@@ -169,6 +169,11 @@ void Connect4Game::botVsBot(MoveDiscoverer& md, Individual& bot1, Individual& bo
 
         auto moves = md.discoverMoves(board, currentPlayer, opponentMark);
         int moveCol = md.getBestMove(moves, currentBot->chromosome);
+
+        // TODO: zrobić coś z błędnym ruchem (dalej występuje)
+        if ( ! makeMove(moveCol) ) {
+            std::wcout << "Błąd przy ruchu!\n";
+        }
 
         board2txt();
 

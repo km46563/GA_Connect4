@@ -6,6 +6,10 @@
 #define GACONFIG_H
 
 
+enum class FitnessCalcType {
+    VS_POPULATION,
+    VS_TEST_BOTS
+};
 
 struct GAConfig {
     int populationSize;
@@ -14,9 +18,13 @@ struct GAConfig {
     float mutationPower;
     double timeLimit;
 
-    GAConfig(int popSize, int tourSize, float mutRate, float mutPower, double time)
-    : populationSize(popSize), tournamentSize(tourSize),
-    mutationRate(mutRate), mutationPower(mutPower), timeLimit(time) {}
+    FitnessCalcType fcType;
+    int battleRepeatN;
+
+    GAConfig(int popSize, int tourSize, float mutRate, float mutPower, double time, FitnessCalcType fcType, int battleRepeatN)
+        : populationSize(popSize), tournamentSize(tourSize),
+          mutationRate(mutRate), mutationPower(mutPower), timeLimit(time),
+          fcType(fcType), battleRepeatN(battleRepeatN) {}
 };
 
 

@@ -28,7 +28,7 @@ public:
     bool makeMove(int col);
     void switchPlayer();
     void play();
-    void playAgainstComputer(int pop_sz, int n_cols, int simGameCount, PopInitType init_type);
+    void playAgainstComputer(int pop_sz, int n_cols, int simGameCount, ChromosomeInitType init_type);
     char getCurrentPlayer() const;
 
     void botVsBot(MoveDiscoverer& md, Individual& bot1, Individual& bot2);

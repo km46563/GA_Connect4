@@ -19,9 +19,9 @@ int main() {
 	// };
 
 	// MoveDiscoverer md;
-	GAConfig config(5, 4, 0.05, 0.5, 60*5);
+	GAConfig config(5, 4, 0.05, 0.5, 20, FitnessCalcType::VS_TEST_BOTS, 20);
 	GAPopulation gap(config);
-	gap.initialize(5, Connect4Game::BOARD_COLS, 10, PopInitType::RANDOM);
+	gap.initialize(5, Connect4Game::BOARD_COLS, ChromosomeInitType::RANDOM, ChromosomeInitType::RANDOM);
 	gap.advancePopulation();
 	gap.plotDrawer();
 	gap.simulateGames();
