@@ -173,6 +173,9 @@ void Connect4Game::botVsBot(MoveDiscoverer& md, Individual& bot1, Individual& bo
         // TODO: zrobić coś z błędnym ruchem (dalej występuje)
         if ( ! makeMove(moveCol) ) {
             std::wcout << "Błąd przy ruchu!\n";
+            while (board[0][moveCol] != ' ') {
+                moveCol = rand() % BOARD_COLS;
+            }
         }
 
         board2txt();
